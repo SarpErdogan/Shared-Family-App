@@ -6,6 +6,9 @@ import LoginPage from './src/screens/LoginPage';
 import PageContainer from './src/screens/PageContainer';
 import TabBar from './src/screens/TabBar';
 import CreateFamilyPage from './src/screens/CreateFamilyPage';
+import FamilyPage from './src/screens/FamilyPage';
+import AddTodoPage from './src/screens/AddToDoPage';
+import ChangeLoginInfoPage from './src/screens/ChangeLoginInfoPage';
 
 export default function App() {
   const { currentScreen } = useScreenStore();
@@ -14,6 +17,9 @@ export default function App() {
     home: <HomePage />,
     login: <LoginPage />,
     createfamily: <CreateFamilyPage />,
+    family: <FamilyPage/>,
+    addtodo: <AddTodoPage />,
+    changeLoginInfo: <ChangeLoginInfoPage />,
   };
 
   return (

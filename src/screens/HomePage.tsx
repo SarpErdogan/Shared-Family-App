@@ -26,6 +26,7 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
+        <Text style = {styles.title}>Your Family's Chores</Text>
         <FlatList
           data="a"
           style={{ marginTop: 20 }}
@@ -48,6 +49,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderBottomWidth: 0.5,
     borderBottomColor: '#ffffff',
+  },
+  title: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    alignSelf: 'center',
   },
   checkbox: {
     width: 22,

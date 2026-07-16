@@ -2,19 +2,23 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { useScreenStore } from "../store/pageStore";
 
+const handleCreateFamily = () => {
+  // will add create family function
+};
+
 const CreateFamilyPage = () => {
   const setScreen = useScreenStore((screen) => screen.setScreen);
 
   return (
     <View style={styles.container}>
-      <Text style={{color: '#ffffff', fontSize: 24, fontWeight: 'bold', marginBottom: 20}}>Create Your Family</Text>
-      <TextInput placeholder="Family Name" style={{height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, color: '#ffffff'}} />
-      <TextInput placeholder="Family Password" secureTextEntry={true} style={{height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, color: '#ffffff'}} />
-      <TouchableOpacity style={{height: 40, backgroundColor: '#4f46e5', justifyContent: 'center', alignItems: 'center', marginBottom: 10}} onPress={() => setScreen("home")}>
+      <Text style={styles.title}>Create Your Family</Text>
+      <TextInput placeholder="Family Name" placeholderTextColor="#888888" style={styles.textInput} />
+      <TextInput placeholder="Family Password" secureTextEntry={true} placeholderTextColor="#888888" style={styles.textInput} />
+      <TouchableOpacity style={styles.button} onPress={() => {setScreen("home"); handleCreateFamily()}}>
           <Text style={{color: '#ffffff'}}>Create Your Family!</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={{height: 40, backgroundColor: '#9ca3af', justifyContent: 'center', alignItems: 'center'}} onPress={() => setScreen("login")}>
-          <Text style={{color: '#000000'}}>Back to Login</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setScreen("login")}>
+          <Text style={{color: '#ffffff'}}>Back to Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -28,5 +32,27 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     backgroundColor: '#000000',
   },
+  title:{
+    color: '#ffffff', 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
+  button: {
+    height: 40,
+    backgroundColor: '#4f46e5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  textInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    color: '#ffffff'
+  },
+  
 });
 
