@@ -1,58 +1,73 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import React, { use } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
 import { useScreenStore } from "../store/pageStore";
-
-const handleCreateFamily = () => {
-  // will add create family function
-};
+import {useCreateFamilyStore, useLoadingStore, useCurrentFamilyStore} from "../store/firebaseStore";
+import styles from "../style/styles"
+import { signUp } from "../firebase/auth";
+import { push, ref } from "firebase/database"
+import { rtdb } from "../firebase/firebaseConfig"
 
 const CreateFamilyPage = () => {
-  const setScreen = useScreenStore((screen) => screen.setScreen);
+
+  const { createFamilyEmail, setCreateFamilyEmail, createFamilyPassword, setCreateFamilyPassword} = useCreateFamilyStore();
+  const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
+  const {loading, setLoading } = useLoadingStore();
+  const currentFamily = useCurrentFamilyStore((s) => s.currentFamily)
+
+  const handleCreateFamily = async () => {
+
+    const { user, error } = await signUp(createFamilyEmail, createFamilyPassword);
+
+    if (error) 
+    {
+      if (error === 'auth/email-already-in-use') {
+        Alert.alert("Error",'That email is already registered');
+      } else if (error === 'auth/weak-password') {
+        Alert.alert("Error",'Password should be at least 6 characters');
+      } else {
+        Alert.alert("Error",'Something went wrong, please try again');
+      }
+      return;
+    }else
+    {
+      Alert.alert("Success", "Family created succesfully")
+    }
+    setCurrentScreen("home")
+    setLoading(true);
+    try {
+      await push(ref(rtdb, currentFamily?.email));
+      Alert.alert("Success","Created family todo succesfully")
+    } catch (error: any) {
+      Alert.alert('Hata', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Your Family</Text>
-      <TextInput placeholder="Family Name" placeholderTextColor="#888888" style={styles.textInput} />
-      <TextInput placeholder="Family Password" secureTextEntry={true} placeholderTextColor="#888888" style={styles.textInput} />
-      <TouchableOpacity style={styles.button} onPress={() => {setScreen("home"); handleCreateFamily()}}>
-          <Text style={{color: '#ffffff'}}>Create Your Family!</Text>
+      <TextInput 
+      placeholder="Family E-Mail" 
+      style={styles.textInput} 
+      value={createFamilyEmail}
+      onChangeText={(text) => setCreateFamilyEmail(text)}
+      />
+      <TextInput 
+      placeholder="Family Password" 
+      secureTextEntry={true} 
+      style={styles.textInput} 
+      value={createFamilyPassword}
+      onChangeText={(text) => setCreateFamilyPassword(text)}
+      />
+      <TouchableOpacity style={styles.button} onPress={() => {handleCreateFamily()}}>
+          <Text style={styles.text}>Create Your Family!</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={() => setScreen("login")}>
-          <Text style={{color: '#ffffff'}}>Back to Login</Text>
+      <TouchableOpacity style={styles.button} onPress={() => setCurrentScreen("login")}>
+          <Text style={styles.text}>Back to Login</Text>
       </TouchableOpacity>
     </View>
   );
-}
+};
+
 export default CreateFamilyPage;
-
-const styles = StyleSheet.create({
-    container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 80,
-    backgroundColor: '#000000',
-  },
-  title:{
-    color: '#ffffff', 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    marginBottom: 20,
-    alignSelf: 'center',
-  },
-  button: {
-    height: 40,
-    backgroundColor: '#4f46e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  textInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    color: '#ffffff'
-  },
-  
-});
-

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Dimensions } from "react-native";
 import { useScreenStore } from "../store/pageStore";
+import styles from "../style/styles";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -30,10 +31,3 @@ const PageContainer = ({ children }: Props) => {
 };
 
 export default PageContainer;
-
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-});

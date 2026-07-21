@@ -2,15 +2,12 @@ import React from "react";
 import { View, Text, StyleSheet, Animated, FlatList, TouchableOpacity, Alert } from "react-native";
 import { useScreenStore } from "../store/pageStore";
 import TabBar from "./TabBar";
+import styles from "../style/styles";
 
-const slideToPage = (translateX:any, index:any, pageWidth:any, duration = 280) =>{
-  Animated.timing(translateX, {
-    toValue: -index * pageWidth,
-    duration,
-    useNativeDriver: true,
-  }).start();
-}
-const handleCheck = (item: any) => {
+const HomePage = () => {
+  const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
+
+  const handleCheck = (item: any) => {
     Alert.alert(
       'Are you sure?',
       'Are you sure you want to delete this item?',
@@ -20,9 +17,6 @@ const handleCheck = (item: any) => {
       ]
     );
   };
-
-const HomePage = () => {
-  const setScreen = useScreenStore((screen) => screen.setScreen);
 
   return (
     <View style={styles.container}>
@@ -41,42 +35,3 @@ const HomePage = () => {
   );
 }
 export default HomePage;
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ffffff',
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    alignSelf: 'center',
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#4A90D9',
-    marginRight: 14,
-  },
-  label: {
-    fontSize: 16,
-    color: '#ffffff',
-  },
-  labelActive: {
-    color: '#4f46e5',
-    fontWeight: '700',
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 80,
-    backgroundColor: '#000000',
-  },
-});

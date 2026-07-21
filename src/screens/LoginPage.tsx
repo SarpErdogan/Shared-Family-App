@@ -1,56 +1,57 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput } from "react-native";
+import React, {useEffect} from "react";
+import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import { useLoginInputStore } from "../store/firebaseStore"
 import { useScreenStore } from "../store/pageStore";
-
-const handleLogin = () => {
-  // will add login function
-}
+import styles from "../style/styles";
+import {login} from "../firebase/auth"
 
 const LoginPage = () => {
-  const setScreen = useScreenStore((screen) => screen.setScreen);
+  
+  const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
+  const loginFamilyEmail = useLoginInputStore((s) => s.loginFamilyEmail);
+  const setLoginFamilyEmail = useLoginInputStore((s) => s.setLoginFamilyEmail);
+  const loginFamilyPassword = useLoginInputStore((s) => s.loginFamilyPassword);
+  const setLoginFamilyPassword = useLoginInputStore((s) => s.setLoginFamilyPassword);
+
+  const handleLogin = async (email:string,password:string) => {
+    const { user, error } = await login(email,password);
+
+    if (error) {
+      Alert.alert('Error', error);
+      return;
+    }else
+    {
+      Alert.alert("Success", "Logged in succesfully");
+      setCurrentScreen("home");
+      setLoginFamilyEmail("");
+      setLoginFamilyPassword("");
+    }
+  };
 
   return (
     <View style={styles.container}>
         <Text style={styles.title}>Log in</Text>
-        <TextInput placeholder="Family Name" placeholderTextColor="#888888" style={styles.textInput} />
-        <TextInput placeholder="Family Password" secureTextEntry={true} placeholderTextColor="#888888" style={styles.textInput} />
-        <TouchableOpacity style={styles.button} onPress={() => {setScreen("home"), handleLogin()}}>
-            <Text style={{color: '#ffffff'}}>Log in</Text>
+        <TextInput 
+        placeholder="E-Mail" 
+        value={loginFamilyEmail}
+        style={styles.textInput} 
+        onChangeText={(text) => setLoginFamilyEmail(text)}
+        />
+        <TextInput 
+        placeholder="Password" 
+        secureTextEntry={true} 
+        value={loginFamilyPassword}
+        style={styles.textInput} 
+        onChangeText={(text) => setLoginFamilyPassword(text)}
+        />
+        <TouchableOpacity style={styles.button} onPress={() => {handleLogin(loginFamilyEmail,loginFamilyPassword)}}>
+            <Text style={styles.text}>Log in</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => setScreen("createfamily")}>
-            <Text style={{color: '#ffffff'}}>Create Your Family!</Text>
+        <TouchableOpacity style={styles.button} onPress={() => {setCurrentScreen("createfamily"), setLoginFamilyEmail(""), setLoginFamilyPassword("")} }>
+            <Text style={styles.text}>Create Your Family!</Text>
         </TouchableOpacity>
     </View>
   );
-}
-export default LoginPage;
 
-const styles = StyleSheet.create({
-    container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 80,
-    backgroundColor: '#000000',
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    alignSelf: 'center',
-  },
-  button: {
-    height: 40,
-    backgroundColor: '#4f46e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  textInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    color: '#ffffff'
-  },
-});
+};
+export default LoginPage;
