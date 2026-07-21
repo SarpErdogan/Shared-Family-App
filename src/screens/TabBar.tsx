@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native
 import { useScreenStore } from "../store/pageStore";
 import styles from "../style/styles";
 
-const TabBar = () => {
+const TabBar = () => 
+{
   const setCurrentScreen = useScreenStore((s) => s.setCurrentScreen)
   const currentScreen = useScreenStore((s) => s.currentScreen);
 

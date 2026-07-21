@@ -5,7 +5,8 @@ import { useScreenStore } from "../store/pageStore";
 import styles from "../style/styles";
 import {login} from "../firebase/auth"
 
-const LoginPage = () => {
+const LoginPage = () => 
+{
   
   const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
   const loginFamilyEmail = useLoginInputStore((s) => s.loginFamilyEmail);
@@ -13,10 +14,12 @@ const LoginPage = () => {
   const loginFamilyPassword = useLoginInputStore((s) => s.loginFamilyPassword);
   const setLoginFamilyPassword = useLoginInputStore((s) => s.setLoginFamilyPassword);
 
-  const handleLogin = async (email:string,password:string) => {
+  const handleLogin = async (email:string,password:string) => 
+  {
     const { user, error } = await login(email,password);
 
-    if (error) {
+    if (error) 
+    {
       Alert.alert('Error', error);
       return;
     }else

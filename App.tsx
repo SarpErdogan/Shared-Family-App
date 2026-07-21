@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View,Alert } from 'react-native';
+import { View,Text } from 'react-native';
 import { subscribeToAuthChanges } from "./src/firebase/auth"
 import { useCurrentFamilyStore, useLoadingStore } from "./src/store/firebaseStore"
 import { useScreenStore } from './src/store/pageStore';
@@ -12,16 +12,19 @@ import FamilyPage from './src/screens/FamilyPage';
 import AddTodoPage from './src/screens/AddToDoPage';
 import ChangePasswordPage from './src/screens/ChangePasswordPage';
 
-export default function App() {
+const App = () =>
+{
   const { currentScreen, setCurrentScreen } = useScreenStore();
-  const { currentFamily, setCurrentFamily } = useCurrentFamilyStore();
-  const { loading, setLoading } = useLoadingStore();
+  const  setCurrentFamily  = useCurrentFamilyStore((s) => s.setCurrentFamily);
+  const authLoading = useLoadingStore((s) => s.authLoading);
+  const setAuthLoading  = useLoadingStore((s) => s.setAuthLoading);
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges((currentUser: any) => {
+    const unsubscribe = subscribeToAuthChanges((currentUser: any) => 
+    {
       setCurrentFamily(currentUser);
       setCurrentScreen(currentUser !== null ? "home" : "login");
-      setLoading(false);
+      setAuthLoading(false);
     });
 
     return unsubscribe;
@@ -36,9 +39,14 @@ export default function App() {
     changeLoginInfo: <ChangePasswordPage />,
   };
 
-  if (loading) {
-    return <View style={{ flex: 1, backgroundColor: '#000000' }} />;
-  }
+  if (authLoading) 
+  {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#000000',alignContent:"center" }}>
+        <Text style={{color:"#ffffff",alignContent:"center"}}>loading</Text>
+      </View>
+    )
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
@@ -49,3 +57,5 @@ export default function App() {
     </View>
   );
 }
+
+export default App;

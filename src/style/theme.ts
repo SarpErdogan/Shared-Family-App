@@ -1,4 +1,5 @@
-export const colors = {
+export const colors = 
+{
   primary: '#4f46e5',
   primaryAlt: '#4A90D9',
   white: '#ffffff',
@@ -9,7 +10,8 @@ export const colors = {
   placeholder: '#ff0000',
 } as const;
 
-export const spacing = {
+export const spacing = 
+{
   xs: 5,
   sm: 8,
   md: 10,
@@ -25,7 +27,8 @@ export const spacing = {
 export type ThemeColor = keyof typeof colors;
 export type ThemeSpacing = keyof typeof spacing;
 
-export const theme = {
+export const theme = 
+{
   colors,
   spacing,
 } as const;

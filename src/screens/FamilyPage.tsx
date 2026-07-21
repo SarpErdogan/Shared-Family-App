@@ -5,7 +5,8 @@ import { useCurrentFamilyStore } from "../store/firebaseStore"
 import styles from "../style/styles";
 import { logout } from '../firebase/auth';
 
-const FamilyPage = () => {
+const FamilyPage = () => 
+{
     const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
     const currentFamily = useCurrentFamilyStore((s) => s.currentFamily);
 
@@ -19,7 +20,7 @@ const FamilyPage = () => {
               </View>
               <Text style={styles.labelActive}>{currentFamily?.email}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.row} onPress={() => setCurrentScreen("changeLoginInfo")}>
+            <TouchableOpacity style={styles.row} onPress={() => {}}>
               <View style={styles.familyInfo}>
                 <Text style={styles.icon}>Family Password:</Text>
               </View>
@@ -36,6 +37,35 @@ const FamilyPage = () => {
                         },
                         {
                             text: "Leave",
+                            onPress: () => {
+                                logout();
+                                setCurrentScreen('login');
+                            },
+                            style: "destructive"
+                        }
+                    ]
+                );
+            }}>
+              <View style={styles.familyInfo}>
+                <Text style={styles.icon}>Leave Family</Text>
+              </View>
+            </TouchableOpacity> 
+            <TouchableOpacity style={styles.row} onPress={() => {setCurrentScreen("changepassword")}}>
+              <View style={styles.familyInfo}>
+                <Text style={styles.icon}>Change password</Text>
+              </View>
+            </TouchableOpacity> 
+            <TouchableOpacity style={styles.row} onPress={() => {
+                Alert.alert(
+                    "Leave Family",
+                    "Are you sure you want to delete the family?",
+                    [
+                        {
+                            text: "Cancel",
+                            style: "cancel"
+                        },
+                        {
+                            text: "Delete",
                             onPress: () => {
                                 logout();
                                 setCurrentScreen('login');

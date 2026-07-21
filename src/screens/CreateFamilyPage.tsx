@@ -7,14 +7,18 @@ import { signUp } from "../firebase/auth";
 import { push, ref } from "firebase/database"
 import { rtdb } from "../firebase/firebaseConfig"
 
-const CreateFamilyPage = () => {
-
-  const { createFamilyEmail, setCreateFamilyEmail, createFamilyPassword, setCreateFamilyPassword} = useCreateFamilyStore();
+const CreateFamilyPage = () => 
+{
+  const createFamilyEmail = useCreateFamilyStore((s) => s.createFamilyEmail);
+  const setCreateFamilyEmail = useCreateFamilyStore((s) => s.setCreateFamilyEmail);
+  const createFamilyPassword = useCreateFamilyStore((s) => s.createFamilyPassword);
+  const setCreateFamilyPassword = useCreateFamilyStore((s) => s.setCreateFamilyPassword);
   const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
-  const {loading, setLoading } = useLoadingStore();
+  const setAuthLoading  = useLoadingStore((s) => s.setAuthLoading);
   const currentFamily = useCurrentFamilyStore((s) => s.currentFamily)
 
-  const handleCreateFamily = async () => {
+  const handleCreateFamily = async () => 
+  {
 
     const { user, error } = await signUp(createFamilyEmail, createFamilyPassword);
 
@@ -33,15 +37,20 @@ const CreateFamilyPage = () => {
       Alert.alert("Success", "Family created succesfully")
     }
     setCurrentScreen("home")
-    setLoading(true);
-    try {
+    setAuthLoading(true);
+    try 
+    {
       await push(ref(rtdb, currentFamily?.email));
       Alert.alert("Success","Created family todo succesfully")
-    } catch (error: any) {
+    } catch (error: any) 
+    {
       Alert.alert('Hata', error.message);
-    } finally {
-      setLoading(false);
+    } finally 
+    {
+      setAuthLoading(false);
     }
+    setCreateFamilyEmail("");
+    setCreateFamilyPassword("");
   };
 
   return (

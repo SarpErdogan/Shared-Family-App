@@ -1,21 +1,42 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, Alert, TextInput } from "react-native";
 import { useScreenStore } from "../store/pageStore";
+import { useChangePasswordStore } from "../store/firebaseStore"
+import { changePassword } from "../firebase/auth"
+
 import styles from "../style/styles"
 
-
-
-const ChangePasswordPage = () => {
-  const newInfo = ""; // will be replaced with zustand-firebase state
+const ChangePasswordPage = () => 
+{
+  const oldPassword = useChangePasswordStore((s) => s.oldPassword);
+  const setOldPassword = useChangePasswordStore((s) => s.setOldPassword);
+  const newPassword = useChangePasswordStore((s) => s.newPassword);
+  const setNewPassword = useChangePasswordStore((s) => s.setNewPassword)
   const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
 
-  const setNewInfo = (info: string | null) => {
-    // will add zustand-firebase state change function
-  };
+  const handleChangePassword = async () => 
+  {
+    const { success, error } = await changePassword(oldPassword, newPassword);
 
-  const handleLoginInfoChange = () => {
-  // will add change login info function
-  setCurrentScreen("family");
+    if (!success) 
+    {
+      if (error === 'auth/wrong-password') 
+      {
+        Alert.alert('Error', 'Current password is incorrect');
+      } else if (error === 'auth/weak-password') 
+      {
+        Alert.alert('Error', 'New password is too weak (min 6 characters)');
+      } else 
+      {
+        Alert.alert('Error', 'Could not change password, please try again');
+      }
+      return;
+    }
+
+    Alert.alert('Success', 'Password changed successfully');
+    setCurrentScreen("family")
+    setOldPassword('');
+    setNewPassword('');
   };
 
   return (
@@ -25,21 +46,21 @@ const ChangePasswordPage = () => {
       placeholder={"Current Password"} 
       secureTextEntry={true}  
       style={styles.textInput} 
-      value={newInfo}
+      value={oldPassword}
       onChangeText={(text) => {
-        setNewInfo(text);
+        setOldPassword(text);
       }}
       />
       <TextInput 
       placeholder={"New Password"} 
       secureTextEntry={true}  
       style={styles.textInput} 
-      value={newInfo}
+      value={newPassword}
       onChangeText={(text) => {
-        setNewInfo(text);
+        setNewPassword(text);
       }}
       />
-      <TouchableOpacity style={styles.button} onPress={() => handleLoginInfoChange()}>
+      <TouchableOpacity style={styles.button} onPress={() => handleChangePassword()}>
           <Text style={styles.text}>Save Changes</Text>
       </TouchableOpacity>
     </View>

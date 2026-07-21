@@ -9,12 +9,14 @@ type Props = {
   children: React.ReactNode;
 };
 
-const PageContainer = ({ children }: Props) => {
+const PageContainer = ({ children }: Props) => 
+{
   const currentScreen = useScreenStore((screen) => screen.currentScreen);
   
   const translateX = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
-  useEffect(() => {
+  useEffect(() => 
+  {
     translateX.setValue(SCREEN_WIDTH);
     Animated.timing(translateX, {
       toValue: 0,
