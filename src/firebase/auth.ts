@@ -7,8 +7,10 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  deleteUser,
 } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { ref, remove } from 'firebase/database';
+import { auth, rtdb } from './firebaseConfig';
 
 export async function signUp(email: string, password: string) 
 {
@@ -61,4 +63,25 @@ export async function changePassword(currentPassword: string, newPassword: strin
   } catch (error: any) {
     return { success: false, error: error.code };
   }
+}
+
+export async function deleteFamily(currentPassword: string) {
+  const user = auth.currentUser;
+
+  if (!user || !user.email) {
+    return { success: false, error: 'no-user' };
+  }
+
+  try {
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+
+    await remove(ref(rtdb, user.uid));
+
+    await deleteUser(user);
+
+    return { success: true, error: null };
+  } catch (error: any) {
+    return { success: false, error: error.code };
+};
 }

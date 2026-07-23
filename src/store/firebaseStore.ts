@@ -1,6 +1,18 @@
 import { User } from "firebase/auth";
 import {create} from "zustand";
 
+type DeviceTokenStore = 
+{
+  deviceToken: string | null;
+  setDeviceToken: (token: string | null) => void;
+};
+
+type deleteFamilyPasswordStore =
+{
+  password: string,
+  setPassword: (pass:string) => void;
+}
+
 type changePasswordStore =
 {
   oldPassword:string,
@@ -56,6 +68,19 @@ type createFamilyStore =
   createFamilyPassword: string;
   setCreateFamilyPassword: (password: string) => void;
 };
+
+export const useDeviceTokenStore = create<DeviceTokenStore>((set) => 
+({
+  deviceToken: null,
+  setDeviceToken: (token) => set({ deviceToken: token }),
+}));
+
+export const useDeleteFamilyPasswordStore = create<deleteFamilyPasswordStore>((set:any) => 
+({
+  password:"",
+  setPassword: (pass:string) => set({password:pass}),
+})
+);
 
 export const useChangePasswordStore = create<changePasswordStore>((set:any) =>
 ({

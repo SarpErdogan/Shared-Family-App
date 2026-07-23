@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { View,Text } from 'react-native';
-import { subscribeToAuthChanges } from "./src/firebase/auth"
-import { useCurrentFamilyStore, useLoadingStore } from "./src/store/firebaseStore"
+import { View } from 'react-native';
+import { subscribeToAuthChanges } from './src/firebase/auth';
+import { useCurrentFamilyStore, useLoadingStore, useDeviceTokenStore } from './src/store/firebaseStore';
 import { useScreenStore } from './src/store/pageStore';
 import HomePage from './src/screens/HomePage';
 import LoginPage from './src/screens/LoginPage';
@@ -11,20 +11,29 @@ import CreateFamilyPage from './src/screens/CreateFamilyPage';
 import FamilyPage from './src/screens/FamilyPage';
 import AddTodoPage from './src/screens/AddToDoPage';
 import ChangePasswordPage from './src/screens/ChangePasswordPage';
+import LoadingPage from './src/screens/LoadingPage';
+import DeleteFamilyPage from './src/screens/DeleteFamilyPage';
+import { registerForPushNotifications } from './src/firebase/notifications';
 
-const App = () =>
-{
+const App = () => {
   const { currentScreen, setCurrentScreen } = useScreenStore();
-  const  setCurrentFamily  = useCurrentFamilyStore((s) => s.setCurrentFamily);
+  const setCurrentFamily = useCurrentFamilyStore((s) => s.setCurrentFamily);
   const authLoading = useLoadingStore((s) => s.authLoading);
-  const setAuthLoading  = useLoadingStore((s) => s.setAuthLoading);
+  const setAuthLoading = useLoadingStore((s) => s.setAuthLoading);
+  const setDeviceToken = useDeviceTokenStore((s) => s.setDeviceToken);
 
   useEffect(() => {
-    const unsubscribe = subscribeToAuthChanges((currentUser: any) => 
-    {
+    const unsubscribe = subscribeToAuthChanges(async (currentUser: any) => {
       setCurrentFamily(currentUser);
-      setCurrentScreen(currentUser !== null ? "home" : "login");
+      setCurrentScreen(currentUser !== null ? 'home' : 'login');
       setAuthLoading(false);
+
+      if (currentUser?.uid) {
+        const token = await registerForPushNotifications(currentUser.uid);
+        setDeviceToken(token);
+      } else {
+        setDeviceToken(null);
+      }
     });
 
     return unsubscribe;
@@ -36,26 +45,20 @@ const App = () =>
     createfamily: <CreateFamilyPage />,
     family: <FamilyPage />,
     addtodo: <AddTodoPage />,
-    changeLoginInfo: <ChangePasswordPage />,
+    changepassword: <ChangePasswordPage />,
+    deletefamily: <DeleteFamilyPage />,
   };
 
-  if (authLoading) 
-  {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#000000',alignContent:"center" }}>
-        <Text style={{color:"#ffffff",alignContent:"center"}}>loading</Text>
-      </View>
-    )
-  };
+  if (authLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      <PageContainer>
-        {screens[currentScreen]}
-      </PageContainer>
+      <PageContainer>{screens[currentScreen]}</PageContainer>
       <TabBar />
     </View>
   );
-}
+};
 
 export default App;
