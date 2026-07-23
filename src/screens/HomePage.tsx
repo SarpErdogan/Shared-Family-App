@@ -1,82 +1,90 @@
-import React from "react";
-import { View, Text, StyleSheet, Animated, FlatList, TouchableOpacity, Alert } from "react-native";
-import { useScreenStore } from "../store/pageStore";
-import TabBar from "./TabBar";
+import React, { useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { get, ref, remove } from 'firebase/database';
+import { rtdb } from '../firebase/firebaseConfig';
+import { useScreenStore } from '../store/pageStore';
+import { useLoadingStore, useItemStore, useCurrentFamilyStore } from '../store/firebaseStore';
+import styles from '../style/styles';
+import { colors } from '../style/theme';
 
-const slideToPage = (translateX:any, index:any, pageWidth:any, duration = 280) =>{
-  Animated.timing(translateX, {
-    toValue: -index * pageWidth,
-    duration,
-    useNativeDriver: true,
-  }).start();
-}
-const handleCheck = (item: any) => {
+const HomePage = () => {
+  const setCurrentScreen = useScreenStore((s) => s.setCurrentScreen);
+  const itemLoading = useLoadingStore((s) => s.itemLoading);
+  const setItemLoading = useLoadingStore((s) => s.setItemLoading);
+  const items = useItemStore((s) => s.items);
+  const setItems = useItemStore((s) => s.setItems);
+  const currentFamily = useCurrentFamilyStore((s) => s.currentFamily);
+
+  useEffect(() => {
+    if (!currentFamily?.uid) return;
+
+    const list = async () => {
+      setItemLoading(true);
+      const snapshot = await get(ref(rtdb, currentFamily.uid));
+      if (snapshot.exists()) {
+        const data = Object.entries(snapshot.val()).map(([id, val]: any) => ({
+          id,
+          chore: val.chore,
+        }));
+        setItems(data);
+      } else {
+        setItems([]);
+      }
+      setItemLoading(false);
+    };
+
+    list();
+  }, [currentFamily]);
+
+  const handleCheck = (item: any) => {
     Alert.alert(
       'Are you sure?',
-      'Are you sure you want to delete this item?',
+      `Check "${item.chore}" as done?`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive' },
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: async () => {
+            await remove(ref(rtdb, `${currentFamily?.uid}/${item.id}`));
+            setItems((prev) => prev.filter((i) => i.id !== item.id));
+          },
+        },
       ]
     );
   };
 
-const HomePage = () => {
-  const setScreen = useScreenStore((screen) => screen.setScreen);
-
   return (
     <View style={styles.container}>
-        <Text style = {styles.title}>Your Family's Chores</Text>
+      <Text style={styles.title}>Your Family's Chores</Text>
+
+      {itemLoading ? (
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : items.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyStateText}>No chores yet.{'\n'}Tap + to add one.</Text>
+        </View>
+      ) : (
         <FlatList
-          data="a"
+          data={items}
           style={{ marginTop: 20 }}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.row} onPress={() => handleCheck(item)}>
               <View style={styles.checkbox} />
-              <Text style={styles.labelActive}>a</Text>
+              <Text style={styles.labelActive}>{item.chore}</Text>
             </TouchableOpacity>
           )}
         />
+      )}
+
+      <TouchableOpacity style={styles.fab} onPress={() => setCurrentScreen('addtodo')}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
-}
-export default HomePage;
+};
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ffffff',
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    alignSelf: 'center',
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#4A90D9',
-    marginRight: 14,
-  },
-  label: {
-    fontSize: 16,
-    color: '#ffffff',
-  },
-  labelActive: {
-    color: '#4f46e5',
-    fontWeight: '700',
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 80,
-    backgroundColor: '#000000',
-  },
-});
+export default HomePage;

@@ -1,62 +1,36 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native";
-import { useScreenStore } from "../store/pageStore";
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useScreenStore } from '../store/pageStore';
+import styles from '../style/styles';
 
+const tabs = [
+  { key: 'home', icon: '🏠︎', label: 'Home' },
+  { key: 'family', icon: '👥', label: 'Family' },
+] as const;
 
 const TabBar = () => {
-  const {setScreen,currentScreen} = useScreenStore();
+  const setCurrentScreen = useScreenStore((s) => s.setCurrentScreen);
+  const currentScreen = useScreenStore((s) => s.currentScreen);
 
-  return currentScreen === "login" || currentScreen === "createfamily" ? null : (
-      <View style={styles.tabBar}>
-        <TouchableOpacity style={styles.tabButton} onPress={() => {setScreen("addtodo")}}>
-          <Text style={styles.icon}>➕</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => {setScreen("home")}}>
-          <Text style={styles.icon}>🏠︎</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => {setScreen("family")}}>
-          <Text style={styles.icon}>👥</Text>
-        </TouchableOpacity>
-      </View>
+  if (currentScreen === 'login' || currentScreen === 'createfamily') return null;
+
+  return (
+    <View style={styles.tabBar}>
+      {tabs.map((tab) => {
+        const isActive = currentScreen === tab.key;
+        return (
+          <TouchableOpacity
+            key={tab.key}
+            style={styles.tabButton}
+            onPress={() => setCurrentScreen(tab.key)}
+          >
+            <Text style={isActive ? styles.tabIconActive : styles.icon}>{tab.icon}</Text>
+            <Text style={isActive ? styles.tabLabelActive : styles.tabLabel}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
   );
-}
+};
 
 export default TabBar;
-
-const styles = StyleSheet.create({
-  tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    height: 64,
-    backgroundColor: '#000000',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
-    paddingBottom: 8,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  tabButton: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-    fontSize: 22,
-    color: '#9ca3af',
-  },
-  iconActive: {
-    color: '#4f46e5',
-  },
-  label: {
-    fontSize: 11,
-    color: '#9ca3af',
-    marginTop: 2,
-  },
-  labelActive: {
-    color: '#4f46e5',
-    fontWeight: '700',
-  },
-});

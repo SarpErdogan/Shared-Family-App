@@ -1,76 +1,69 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useScreenStore } from '../store/pageStore';
-
-const handleAddChore = () => {
-  // will add add chore function
-};
+import { useAddToDoStore, useCurrentFamilyStore, useLoadingStore, useDeviceTokenStore } from '../store/firebaseStore';
+import styles from '../style/styles';
+import { colors } from '../style/theme';
+import { push, ref } from 'firebase/database';
+import { rtdb } from '../firebase/firebaseConfig';
+import { sendChoreAddedNotification } from '../firebase/notifications';
 
 const AddToDoPage = () => {
-    const setScreen = useScreenStore((screen) => screen.setScreen);
+  const setCurrentScreen = useScreenStore((screen) => screen.setCurrentScreen);
+  const addToDo = useAddToDoStore((s) => s.addToDo);
+  const setAddToDo = useAddToDoStore((s) => s.setAddToDo);
+  const currentFamily = useCurrentFamilyStore((s) => s.currentFamily);
+  const setItemLoading = useLoadingStore((s) => s.setItemLoading);
+  const deviceToken = useDeviceTokenStore((s) => s.deviceToken);
 
-    return (
-        <View style={styles.container}>
-            <Text style = {styles.title}>Add A Chore</Text>
-            <TextInput placeholder="Enter your chore here" placeholderTextColor="#888888" style={styles.textInput} />
-            <TouchableOpacity style={styles.button} onPress={() => {setScreen("home"); handleAddChore()}}>
-                <Text style={{color: '#ffffff'}}>Add A Chore!</Text>
-            </TouchableOpacity>
-        </View>
-    );
+  const handleAddChore = async () => {
+    if (addToDo.trim() === '') {
+      Alert.alert('Error', 'Please write a chore');
+      return;
+    }
+
+    const choreName = addToDo.trim();
+
+    try {
+      setItemLoading(true);
+      await push(ref(rtdb, currentFamily?.uid), {
+        chore: choreName,
+      });
+      setAddToDo('');
+      setCurrentScreen('home');
+
+      if (currentFamily?.uid) {
+        sendChoreAddedNotification(currentFamily.uid, choreName, deviceToken);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setItemLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Add A Chore</Text>
+      <Text style={styles.subtitle}>What needs to get done?</Text>
+
+      <TextInput
+        placeholder="e.g. Take out the trash"
+        placeholderTextColor={colors.placeholder}
+        value={addToDo}
+        onChangeText={setAddToDo}
+        style={styles.textInput}
+      />
+
+      <TouchableOpacity style={styles.button} onPress={handleAddChore}>
+        <Text style={styles.text}>Add Chore</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => setCurrentScreen('home')}>
+        <Text style={styles.linkText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 export default AddToDoPage;
-
-const styles = StyleSheet.create({
-  button: {
-    height: 40,
-    backgroundColor: '#4f46e5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  textInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    color: '#ffffff'
-  },
-  icon: {
-    fontSize: 22,
-    color: '#9ca3af',
-  },
-  labelActive: {
-    color: '#4f46e5',
-    fontWeight: '700',
-  },
-    row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ffffff',
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#4A90D9',
-    marginRight: 14,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 80,
-    backgroundColor: '#000000',
-  },
-  title: {
-    color: '#ffffff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    alignSelf: 'center',
-  },
-});
